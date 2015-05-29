@@ -3,6 +3,7 @@
 namespace WaToZendApp\Command;
 
 use Lib\Config;
+use Lib\WhatsAppEvents;
 use Lib\ZendeskClient;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -59,6 +60,10 @@ class WaToZendCommand extends Command
 
         $this->z = new ZendeskClient($this->country);
         $this->w = new \WhatsProt($username, $nickname, $this->debug);
+
+        $events = new WhatsAppEvents($this->w);
+        $events->setEventsToListenFor($events->activeEvents);
+
         $this->w->connect();
         $this->w->loginWithPassword($password);
 
