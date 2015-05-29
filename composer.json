@@ -1,0 +1,25 @@
+{
+    "name": "whatsapp Zendesk API",
+    "description": "whatsapp Zendesk API",
+    "require": {
+        "symfony/yaml": "dev-master",
+        "zendesk/zendesk_api_client_php": "dev-master",
+        "altorouter/altorouter": "1.1.0",
+        "mgp25/whatsapi": "dev-master",
+        "symfony/console": "dev-master",
+        "pimple/pimple": "dev-master"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Rivas Fernando",
+            "email": "fernando.rivas@olx.com"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "WaToZendApp": "src/",
+            "Lib": "src/"
+        }
+    }
+}
