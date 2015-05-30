@@ -62,6 +62,7 @@ class WaToZendCommand extends Command
         $this->w = new \WhatsProt($username, $nickname, $this->debug);
 
         $events = new WhatsAppEvents($this->w);
+        $events->setZendClient($this->z);
         $events->setEventsToListenFor($events->activeEvents);
 
         $this->w->connect();
@@ -79,13 +80,15 @@ class WaToZendCommand extends Command
         $this->output->writeln('<info>Listening Messages...</info>');
         $messages = 0;
         while ($this->w->PollMessage()) {
-            $data = $this->w->GetMessages();
+           /*
+           $data = $this->w->GetMessages();
             if (!empty($data)) {
                 foreach ($data as $object) {
                     $this->sendComment($object);
                     $messages++;
                 }
             }
+           */
             sleep(1);
         }
         $this->output->writeln("<info>$messages</info> messages where sent to zendesk");
@@ -93,8 +96,8 @@ class WaToZendCommand extends Command
 
     protected function sendComment(\ProtocolNode $node)
     {
-        $ticket  = $this->z->manageSend($node);
-        $this->output->writeln("ticket generated/edited " . $ticket->ticket->id);
+        //$ticket  = $this->z->manageSend($node);
+        //$this->output->writeln("ticket generated/edited " . $ticket->ticket->id);
     }
 
     protected function getComments()

@@ -4,6 +4,8 @@ namespace Lib;
 
 
 class WhatsAppEvents extends \AllEvents {
+
+    private $z;
     /**
      * This is a list of all current events. Uncomment the ones you wish to listen to.
      * Every event that is uncommented - should then have a function below.
@@ -90,11 +92,16 @@ class WhatsAppEvents extends \AllEvents {
 
     public function onGetImage($mynumber, $from, $id, $type, $time, $name, $size, $url, $file, $mimeType, $fileHash, $width, $height, $preview, $caption)
     {
-        echo "llego imagen";
+        echo "llego imagen\n";
     }
 
     public function onGetMessage($mynumber, $from, $id, $type, $time, $name, $body)
     {
-        echo "$from: $body\n";
+        $this->z->manageSend($mynumber, $from, $id, $type, $time, $name, $body);
+    }
+
+    public function setZendClient(ZendeskClient $z)
+    {
+        $this->z = $z;
     }
 } 

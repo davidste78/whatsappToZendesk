@@ -30,12 +30,12 @@ Class ZendeskClient
         return $this->client;
     }
 
-    public function manageSend(\ProtocolNode $node)
+    public function manageSend($mynumber, $from, $id, $type, $time, $name, $body)
     {
-        $message    = $node->getChild('body');
-        $message    = $message->getData();
-        $fromName   = $node->getAttribute('notify');
-        $fromNumber = $node->getAttribute('from');
+        $message    = $body;
+        $fromName   = $name;
+        $fromNumber = $from;
+
         $ticket     = $this->hasOneOpen($fromNumber);
 
         if ($ticket) {
@@ -63,10 +63,10 @@ Class ZendeskClient
                     'priority' => 'normal'
                 )
             );
-            sleep(30);
+            sleep(45);
         }
 
-        return $result;
+        echo "ticket generated/edited " . $result->ticket->id . "\n";
     }
 
     private function hasOneOpen($requester)
@@ -125,7 +125,7 @@ Class ZendeskClient
         $comments     = $this->client->ticket($id)->comments()->findAll();
         $result = array();
         foreach ($comments->comments as $comment) {
-            if ((!in_array($comment->id, $readComments)) && ($ticket->submitter_id != $comment->author_id)) {
+            if ((!in_array($comment->id, $readComments)) && ($ticket->submitter_id != $comment->author_id) && ($comment->public)) {
                 array_push($result, array(
                     'id'        => $comment->id,
                     'phone'     => $user->email,
