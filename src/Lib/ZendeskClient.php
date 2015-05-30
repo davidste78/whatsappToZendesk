@@ -13,6 +13,8 @@ Class ZendeskClient
 
     private $country;
 
+    private $currentTicket;
+
     public function __construct($country)
     {
         $subDomain      = Config::get("$country.zendesk.sub_domain");
@@ -35,7 +37,6 @@ Class ZendeskClient
         $message    = $body;
         $fromName   = $name;
         $fromNumber = $from;
-
         $ticket     = $this->hasOneOpen($fromNumber);
 
         if ($ticket) {
@@ -48,6 +49,7 @@ Class ZendeskClient
                         ),
                     )
             );
+            $action     = 'update';
         } else {
             $result = $this->client->tickets()->create(
                 array(
@@ -63,10 +65,11 @@ Class ZendeskClient
                     'priority' => 'normal'
                 )
             );
+            $action     = 'create';
             sleep(45);
         }
 
-        echo "ticket generated/edited " . $result->ticket->id . "\n";
+        echo $action . " ticket " . $result->ticket->id . "\n";
     }
 
     private function hasOneOpen($requester)
@@ -94,7 +97,7 @@ Class ZendeskClient
                 array_push($newComments, $comment);
                 array_push($commentIds, $comment['id']);
             }
-            $this->markAsRead($id, $commentIds);
+            $this->markAsRead($commentIds);
         }
 
         return $newComments;
@@ -119,9 +122,10 @@ Class ZendeskClient
     {
         $ticket       = $this->client->ticket()->find(array('id'=> $id));
         $ticket       = $ticket->ticket;
+        $this->currentTicket = $ticket;
         $user         = $this->client->users()->find(array('id' => $ticket->submitter_id));
         $user         = $user->user;
-        $readComments = $this->getReadCommentsIds($id);
+        $readComments = $this->getReadCommentsIds();
         $comments     = $this->client->ticket($id)->comments()->findAll();
         $result = array();
         foreach ($comments->comments as $comment) {
@@ -137,10 +141,10 @@ Class ZendeskClient
         return $result;
     }
 
-    private function getReadCommentsIds($id)
+    private function getReadCommentsIds()
     {
-        $ticket         = $this->client->ticket()->find(array('id'=> $id));
-        $customFields   = $ticket->ticket->custom_fields;
+        $ticket         = $this->currentTicket;
+        $customFields   = $ticket->custom_fields;
         $ids            = array();
 
         foreach ($customFields as $field) {
@@ -152,10 +156,9 @@ Class ZendeskClient
         return $ids;
     }
 
-    private function markAsRead($ticketId, $commentIds)
+    private function markAsRead($commentIds)
     {
-        $ticket         = $this->client->ticket()->find(array('id'=> $ticketId));
-        $ticket         = $ticket->ticket;
+        $ticket         = $this->currentTicket;
         $customFields   = $ticket->custom_fields;
         $ids            = array();
 
